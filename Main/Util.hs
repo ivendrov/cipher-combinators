@@ -4,7 +4,7 @@ import Data.Char
 
 type Bit = Bool
 xor1 :: Bit -> Bit -> Bit
-xor1 True = not . id
+xor1 True = not
 xor1 False = id
 
 xor :: [Bit] -> [Bit] -> [Bit]
@@ -36,3 +36,11 @@ showBits n = unwords . map (map showBit) . chop n
 -- ignoring whitespace
 readBits :: String -> [Bit]
 readBits = map (readBit) . filter (not . isSpace)
+
+
+
+-- | Main Encryption Abstraction
+-- | TODO possibly add keys to functions & otherwise refactor
+data Cipher msg ct = Cipher
+			{ encrypt :: msg -> ct, 
+			  decrypt :: ct -> msg }

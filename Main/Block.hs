@@ -1,15 +1,10 @@
 import Data.List
-import Data.Vector (toList, fromList, backpermute)
 import Data.Ord (comparing)
 
 import Util
 
 
--- | Main Encryption Abstraction
--- | TODO possibly add keys to functions & otherwise refactor
-data Cipher msg ct = Cipher
-			{ encrypt :: msg -> ct, 
-			  decrypt :: ct -> msg }
+
 
 
 
@@ -26,11 +21,11 @@ type BlockCipher = Cipher Block Block
 -- the (sigma !! i)th letter becomes the ith
 permutationCipher :: [Int] -> Cipher [a] [a]
 permutationCipher ints = 
-  let v = fromList ints
-      permute sigma = map snd . sortBy (comparing fst) . zip (toList sigma)
+  let permute sigma = map snd . sortBy (comparing fst) . zip sigma
+      backpermute sigma a = map (a!!) sigma
   in Cipher 
-         (toList . flip backpermute v . fromList) 
-         (permute v)
+         (backpermute ints)
+         (permute ints)
   
 
 
@@ -71,11 +66,11 @@ cfb (Cipher e d) r iv =
 
 
 -- example
-plaintext = readBits "1000 0011 0001"
-cipher = permutationCipher [1,0,3,2]
-iv = readBits "1001"
-ciphertext = concat . encrypt (ofb cipher iv) . chop 3 $ plaintext
-newPlain = concat . decrypt (ofb cipher iv) . chop 3 $ ciphertext
+plaintext = readBits "1001 1011 0010"
+cipher = permutationCipher [1,2,3,0]
+iv = readBits "1111"
+ciphertext = concat . decrypt (cfb cipher 3 iv) . chop 3 $ plaintext
+newPlain = concat . encrypt (cfb cipher 3 iv) . chop 3 $ ciphertext
 
 
 
